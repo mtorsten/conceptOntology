@@ -1,3 +1,5 @@
+*This is work in progress and at prototype level. Caveat Emptor.*
+
 # W3C Semantic Web Ontology System
 
 A W3C standards-compliant ontology system built on RDF 1.2, SPARQL, SHACL, and Turtle serialization. This system provides a complete semantic web infrastructure with Python APIs, SPARQL querying, SHACL validation, and interactive graph visualization.
