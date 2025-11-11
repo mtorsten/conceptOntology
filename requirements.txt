@@ -1,0 +1,9 @@
+# Core RDF library for triple manipulation, SPARQL queries, and SHACL validation
+maplib>=0.1.0
+
+# Web framework for REST API
+flask>=3.0.0
+flask-cors>=4.0.0
+
+# Additional utilities
+python-dotenv>=1.0.0

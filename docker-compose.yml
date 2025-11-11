@@ -1,0 +1,114 @@
+services:
+  # Python API service for RDF operations
+  ontology-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ontology-api
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mount ontology files
+      - ./ontology:/app/ontology
+      # Mount instance data
+      - ./data:/app/data
+      # Mount SHACL validation shapes
+      - ./validation:/app/validation
+      # Mount output directory for validation reports
+      - ./output:/app/output
+      # Mount source code for development (optional)
+      - ./src:/app/src
+    networks:
+      - ontology-network
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONPATH=/app/src
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+
+  # Apache Jena Fuseki SPARQL server with TDB2 persistence
+  fuseki:
+    image: stain/jena-fuseki:latest
+    container_name: fuseki
+    ports:
+      - "3030:3030"
+    volumes:
+      # Persistent storage for TDB2 database
+      - fuseki-data:/fuseki
+      # Initialization script
+      - ./fuseki-init.sh:/docker-entrypoint-initdb.d/fuseki-init.sh:ro
+      # Share ontology files for loading
+      - ./ontology:/ontology:ro
+      # Share instance data
+      - ./data:/data:ro
+      # Share validation shapes
+      - ./validation:/validation:ro
+    networks:
+      - ontology-network
+    environment:
+      # Admin credentials
+      - ADMIN_PASSWORD=admin123
+      # JVM memory settings
+      - JVM_ARGS=-Xmx2g -Xms1g
+    # Use custom initialization script to load data and start server
+    command: sh -c "cp /docker-entrypoint-initdb.d/fuseki-init.sh /tmp/fuseki-init.sh && chmod +x /tmp/fuseki-init.sh && /tmp/fuseki-init.sh"
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3030/$/ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+
+  # Graph Explorer for interactive RDF visualization
+  graph-explorer:
+    build:
+      context: ./graph-explorer
+      dockerfile: Dockerfile
+    container_name: graph-explorer
+    ports:
+      - "3000:80"
+    networks:
+      - ontology-network
+    environment:
+      # SPARQL endpoint configuration - connect to Fuseki
+      # Note: Using localhost:3030 because the browser (client-side) needs to access it
+      - ENDPOINT_URL=http://localhost:3030/ontology/sparql
+      # Use credentials for API access (no for open access)
+      - USE_CREDS=no
+      # Use regex search instead of Lucene (no for regex-based search)
+      - LUCENE_SEARCH=no
+    depends_on:
+      fuseki:
+        condition: service_healthy
+      ontology-api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    restart: unless-stopped
+
+# Define internal bridge network for service communication
+networks:
+  ontology-network:
+    driver: bridge
+    name: ontology-network
+
+# Define named volumes for data persistence
+volumes:
+  fuseki-data:
+    driver: local
+  ontology-data:
+    driver: local
+  validation-data:
+    driver: local
+  output-data:
+    driver: local

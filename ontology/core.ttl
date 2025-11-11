@@ -1,0 +1,101 @@
+@prefix : <http://example.org/ontology#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Ontology Declaration
+: a owl:Ontology ;
+    rdfs:label "Core Ontology"@en ;
+    rdfs:comment "Core ontology definitions providing base classes and properties for the domain model"@en ;
+    owl:versionInfo "1.0.0" .
+
+# Base Classes
+:Entity a owl:Class ;
+    rdfs:label "Entity"@en ;
+    rdfs:comment "Base class for all entities in the ontology"@en .
+
+:Agent a owl:Class ;
+    rdfs:subClassOf :Entity ;
+    rdfs:label "Agent"@en ;
+    rdfs:comment "An entity that can perform actions or have agency"@en .
+
+:Resource a owl:Class ;
+    rdfs:subClassOf :Entity ;
+    rdfs:label "Resource"@en ;
+    rdfs:comment "A resource that can be referenced or utilized"@en .
+
+:Event a owl:Class ;
+    rdfs:subClassOf :Entity ;
+    rdfs:label "Event"@en ;
+    rdfs:comment "An occurrence or happening at a specific time"@en .
+
+# Object Properties
+:hasProperty a owl:ObjectProperty ;
+    rdfs:label "has property"@en ;
+    rdfs:comment "Relates an entity to another entity as a property"@en ;
+    rdfs:domain :Entity ;
+    rdfs:range :Entity .
+
+:relatedTo a owl:ObjectProperty ;
+    rdfs:label "related to"@en ;
+    rdfs:comment "General relationship between entities"@en ;
+    rdfs:domain :Entity ;
+    rdfs:range :Entity ;
+    a owl:SymmetricProperty .
+
+:participatesIn a owl:ObjectProperty ;
+    rdfs:label "participates in"@en ;
+    rdfs:comment "Indicates that an agent participates in an event"@en ;
+    rdfs:domain :Agent ;
+    rdfs:range :Event .
+
+:hasAgent a owl:ObjectProperty ;
+    rdfs:label "has agent"@en ;
+    rdfs:comment "Indicates the agent associated with an event"@en ;
+    rdfs:domain :Event ;
+    rdfs:range :Agent ;
+    owl:inverseOf :participatesIn .
+
+:uses a owl:ObjectProperty ;
+    rdfs:label "uses"@en ;
+    rdfs:comment "Indicates that an agent uses a resource"@en ;
+    rdfs:domain :Agent ;
+    rdfs:range :Resource .
+
+# Datatype Properties
+:hasIdentifier a owl:DatatypeProperty ;
+    rdfs:label "has identifier"@en ;
+    rdfs:comment "A unique identifier for an entity"@en ;
+    rdfs:domain :Entity ;
+    rdfs:range xsd:string .
+
+:hasName a owl:DatatypeProperty ;
+    rdfs:label "has name"@en ;
+    rdfs:comment "The name of an entity"@en ;
+    rdfs:domain :Entity ;
+    rdfs:range xsd:string .
+
+:hasDescription a owl:DatatypeProperty ;
+    rdfs:label "has description"@en ;
+    rdfs:comment "A textual description of an entity"@en ;
+    rdfs:domain :Entity ;
+    rdfs:range xsd:string .
+
+:hasTimestamp a owl:DatatypeProperty ;
+    rdfs:label "has timestamp"@en ;
+    rdfs:comment "The timestamp associated with an event"@en ;
+    rdfs:domain :Event ;
+    rdfs:range xsd:dateTime .
+
+:hasValue a owl:DatatypeProperty ;
+    rdfs:label "has value"@en ;
+    rdfs:comment "A numeric value associated with an entity"@en ;
+    rdfs:domain :Entity ;
+    rdfs:range xsd:decimal .
+
+:isActive a owl:DatatypeProperty ;
+    rdfs:label "is active"@en ;
+    rdfs:comment "Indicates whether an entity is currently active"@en ;
+    rdfs:domain :Entity ;
+    rdfs:range xsd:boolean .

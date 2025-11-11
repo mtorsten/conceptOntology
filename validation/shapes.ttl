@@ -1,0 +1,463 @@
+@prefix : <http://example.org/ontology#> .
+@prefix ext: <http://example.org/ontology/extensions#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# SHACL Shapes for Core Ontology Validation
+
+# ============================================
+# Core Class Shapes
+# ============================================
+
+# Entity Shape - Base validation for all entities
+:EntityShape a sh:NodeShape ;
+    sh:targetClass :Entity ;
+    rdfs:label "Entity Shape"@en , "Entitetsform"@no ;
+    rdfs:comment "Validation shape for Entity class instances"@en ,
+                 "Valideringsform for Entity-klasseinstanser"@no ;
+    sh:property [
+        sh:path :hasIdentifier ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 1 ;
+        sh:severity sh:Violation ;
+        sh:message "Entity must have exactly one non-empty identifier"@en ,
+                   "Entitet må ha nøyaktig én ikke-tom identifikator"@no ;
+    ] ;
+    sh:property [
+        sh:path :hasName ;
+        sh:datatype rdf:langString ;
+        sh:minCount 1 ;
+        sh:uniqueLang true ;
+        sh:severity sh:Violation ;
+        sh:message "Entity must have at least one name with unique language tags"@en ,
+                   "Entitet må ha minst ett navn med unike språkkoder"@no ;
+    ] ;
+    sh:property [
+        sh:path :hasDescription ;
+        sh:datatype rdf:langString ;
+        sh:uniqueLang true ;
+        sh:severity sh:Warning ;
+        sh:message "Entity should have descriptions with unique language tags"@en ,
+                   "Entitet bør ha beskrivelser med unike språkkoder"@no ;
+    ] ;
+    sh:property [
+        sh:path :hasValue ;
+        sh:datatype xsd:decimal ;
+        sh:maxCount 1 ;
+        sh:severity sh:Info ;
+        sh:message "Entity may have at most one numeric value"@en ,
+                   "Entitet kan ha maksimalt én numerisk verdi"@no ;
+    ] ;
+    sh:property [
+        sh:path :isActive ;
+        sh:datatype xsd:boolean ;
+        sh:maxCount 1 ;
+        sh:severity sh:Info ;
+        sh:message "Entity may have at most one active status"@en ,
+                   "Entitet kan ha maksimalt én aktiv status"@no ;
+    ] .
+
+# Agent Shape - Validation for agents
+:AgentShape a sh:NodeShape ;
+    sh:targetClass :Agent ;
+    rdfs:label "Agent Shape"@en , "Agentform"@no ;
+    rdfs:comment "Validation shape for Agent class instances"@en ,
+                 "Valideringsform for Agent-klasseinstanser"@no ;
+    sh:property [
+        sh:path :participatesIn ;
+        sh:class :Event ;
+        sh:severity sh:Info ;
+        sh:message "Agent should participate in events of type Event"@en ,
+                   "Agent bør delta i hendelser av typen Event"@no ;
+    ] ;
+    sh:property [
+        sh:path :uses ;
+        sh:class :Resource ;
+        sh:severity sh:Info ;
+        sh:message "Agent should use resources of type Resource"@en ,
+                   "Agent bør bruke ressurser av typen Resource"@no ;
+    ] .
+
+# Resource Shape - Validation for resources
+:ResourceShape a sh:NodeShape ;
+    sh:targetClass :Resource ;
+    rdfs:label "Resource Shape"@en , "Ressursform"@no ;
+    rdfs:comment "Validation shape for Resource class instances"@en ,
+                 "Valideringsform for Resource-klasseinstanser"@no ;
+    sh:property [
+        sh:path :hasIdentifier ;
+        sh:pattern "^[A-Za-z0-9_-]+$" ;
+        sh:severity sh:Warning ;
+        sh:message "Resource identifier should contain only alphanumeric characters, hyphens, and underscores"@en ,
+                   "Ressursidentifikator bør kun inneholde alfanumeriske tegn, bindestreker og understreker"@no ;
+    ] .
+
+# Event Shape - Validation for events
+:EventShape a sh:NodeShape ;
+    sh:targetClass :Event ;
+    rdfs:label "Event Shape"@en , "Hendelsesform"@no ;
+    rdfs:comment "Validation shape for Event class instances"@en ,
+                 "Valideringsform for Event-klasseinstanser"@no ;
+    sh:property [
+        sh:path :hasTimestamp ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "Event must have exactly one timestamp"@en ,
+                   "Hendelse må ha nøyaktig ett tidsstempel"@no ;
+    ] ;
+    sh:property [
+        sh:path :hasAgent ;
+        sh:class :Agent ;
+        sh:minCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "Event must have at least one associated agent"@en ,
+                   "Hendelse må ha minst én tilknyttet agent"@no ;
+    ] .
+
+# ============================================
+# Extension Class Shapes
+# ============================================
+
+# Person Shape - Validation for persons
+ext:PersonShape a sh:NodeShape ;
+    sh:targetClass ext:Person ;
+    rdfs:label "Person Shape"@en , "Personform"@no ;
+    rdfs:comment "Validation shape for Person class instances"@en ,
+                 "Valideringsform for Person-klasseinstanser"@no ;
+    sh:property [
+        sh:path ext:email ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$" ;
+        sh:severity sh:Violation ;
+        sh:message "Person must have a valid email address format"@en ,
+                   "Person må ha et gyldig e-postadresseformat"@no ;
+    ] ;
+    sh:property [
+        sh:path ext:phoneNumber ;
+        sh:datatype xsd:string ;
+        sh:pattern "^\\+?[0-9\\s\\-\\(\\)]+$" ;
+        sh:severity sh:Warning ;
+        sh:message "Phone number should contain only digits, spaces, hyphens, parentheses, and optional plus sign"@en ,
+                   "Telefonnummer bør kun inneholde sifre, mellomrom, bindestreker, parenteser og valgfritt plusstegn"@no ;
+    ] ;
+    sh:property [
+        sh:path ext:worksFor ;
+        sh:class ext:Organization ;
+        sh:severity sh:Info ;
+        sh:message "Person may work for an organization"@en ,
+                   "Person kan jobbe for en organisasjon"@no ;
+    ] .
+
+# Organization Shape - Validation for organizations
+ext:OrganizationShape a sh:NodeShape ;
+    sh:targetClass ext:Organization ;
+    rdfs:label "Organization Shape"@en , "Organisasjonsform"@no ;
+    rdfs:comment "Validation shape for Organization class instances"@en ,
+                 "Valideringsform for Organization-klasseinstanser"@no ;
+    sh:property [
+        sh:path ext:website ;
+        sh:datatype xsd:anyURI ;
+        sh:maxCount 1 ;
+        sh:severity sh:Info ;
+        sh:message "Organization may have at most one website URL"@en ,
+                   "Organisasjon kan ha maksimalt én nettside-URL"@no ;
+    ] ;
+    sh:property [
+        sh:path ext:phoneNumber ;
+        sh:datatype xsd:string ;
+        sh:pattern "^\\+?[0-9\\s\\-\\(\\)]+$" ;
+        sh:severity sh:Warning ;
+        sh:message "Phone number should contain only digits, spaces, hyphens, parentheses, and optional plus sign"@en ,
+                   "Telefonnummer bør kun inneholde sifre, mellomrom, bindestreker, parenteser og valgfritt plusstegn"@no ;
+    ] .
+
+# Document Shape - Validation for documents
+ext:DocumentShape a sh:NodeShape ;
+    sh:targetClass ext:Document ;
+    rdfs:label "Document Shape"@en , "Dokumentform"@no ;
+    rdfs:comment "Validation shape for Document class instances"@en ,
+                 "Valideringsform for Document-klasseinstanser"@no ;
+    sh:property [
+        sh:path ext:version ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[0-9]+\\.[0-9]+\\.[0-9]+$" ;
+        sh:severity sh:Violation ;
+        sh:message "Document must have exactly one version in semantic versioning format (e.g., 1.0.0)"@en ,
+                   "Dokument må ha nøyaktig én versjon i semantisk versjonsformat (f.eks. 1.0.0)"@no ;
+    ] ;
+    sh:property [
+        sh:path ext:fileSize ;
+        sh:datatype xsd:long ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0 ;
+        sh:severity sh:Warning ;
+        sh:message "Document file size must be non-negative"@en ,
+                   "Dokumentfilstørrelse må være ikke-negativ"@no ;
+    ] .
+
+# Dataset Shape - Validation for datasets
+ext:DatasetShape a sh:NodeShape ;
+    sh:targetClass ext:Dataset ;
+    rdfs:label "Dataset Shape"@en , "Datasettform"@no ;
+    rdfs:comment "Validation shape for Dataset class instances"@en ,
+                 "Valideringsform for Dataset-klasseinstanser"@no ;
+    sh:property [
+        sh:path ext:version ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "Dataset must have at least one version identifier"@en ,
+                   "Datasett må ha minst én versjonsidentifikator"@no ;
+    ] .
+
+# Project Shape - Validation for projects
+ext:ProjectShape a sh:NodeShape ;
+    sh:targetClass ext:Project ;
+    rdfs:label "Project Shape"@en , "Prosjektform"@no ;
+    rdfs:comment "Validation shape for Project class instances"@en ,
+                 "Valideringsform for Project-klasseinstanser"@no ;
+    sh:property [
+        sh:path ext:startDate ;
+        sh:datatype xsd:date ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "Project must have exactly one start date"@en ,
+                   "Prosjekt må ha nøyaktig én startdato"@no ;
+    ] ;
+    sh:property [
+        sh:path ext:endDate ;
+        sh:datatype xsd:date ;
+        sh:maxCount 1 ;
+        sh:severity sh:Warning ;
+        sh:message "Project should have at most one end date"@en ,
+                   "Prosjekt bør ha maksimalt én sluttdato"@no ;
+    ] ;
+    sh:property [
+        sh:path ext:status ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "planned" "active" "on-hold" "completed" "cancelled" ) ;
+        sh:severity sh:Violation ;
+        sh:message "Project must have exactly one status from: planned, active, on-hold, completed, cancelled"@en ,
+                   "Prosjekt må ha nøyaktig én status fra: planned, active, on-hold, completed, cancelled"@no ;
+    ] ;
+    sh:property [
+        sh:path ext:manages ;
+        sh:class :Agent ;
+        sh:minCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "Project must have at least one manager"@en ,
+                   "Prosjekt må ha minst én leder"@no ;
+    ] .
+
+# Task Shape - Validation for tasks
+ext:TaskShape a sh:NodeShape ;
+    sh:targetClass ext:Task ;
+    rdfs:label "Task Shape"@en , "Oppgaveform"@no ;
+    rdfs:comment "Validation shape for Task class instances"@en ,
+                 "Valideringsform for Task-klasseinstanser"@no ;
+    sh:property [
+        sh:path ext:assignedTo ;
+        sh:class :Agent ;
+        sh:minCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "Task must be assigned to at least one agent"@en ,
+                   "Oppgave må være tildelt minst én agent"@no ;
+    ] ;
+    sh:property [
+        sh:path ext:dueDate ;
+        sh:datatype xsd:date ;
+        sh:maxCount 1 ;
+        sh:severity sh:Warning ;
+        sh:message "Task should have at most one due date"@en ,
+                   "Oppgave bør ha maksimalt én forfallsdato"@no ;
+    ] ;
+    sh:property [
+        sh:path ext:priority ;
+        sh:datatype xsd:integer ;
+        sh:maxCount 1 ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 5 ;
+        sh:severity sh:Warning ;
+        sh:message "Task priority must be between 1 and 5"@en ,
+                   "Oppgaveprioritet må være mellom 1 og 5"@no ;
+    ] ;
+    sh:property [
+        sh:path ext:status ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "todo" "in-progress" "blocked" "completed" "cancelled" ) ;
+        sh:severity sh:Violation ;
+        sh:message "Task must have exactly one status from: todo, in-progress, blocked, completed, cancelled"@en ,
+                   "Oppgave må ha nøyaktig én status fra: todo, in-progress, blocked, completed, cancelled"@no ;
+    ] ;
+    sh:property [
+        sh:path ext:dependsOn ;
+        sh:class ext:Task ;
+        sh:severity sh:Info ;
+        sh:message "Task may depend on other tasks"@en ,
+                   "Oppgave kan avhenge av andre oppgaver"@no ;
+    ] .
+
+# Meeting Shape - Validation for meetings
+ext:MeetingShape a sh:NodeShape ;
+    sh:targetClass ext:Meeting ;
+    rdfs:label "Meeting Shape"@en , "Møteform"@no ;
+    rdfs:comment "Validation shape for Meeting class instances"@en ,
+                 "Valideringsform for Meeting-klasseinstanser"@no ;
+    sh:property [
+        sh:path ext:location ;
+        sh:datatype rdf:langString ;
+        sh:minCount 1 ;
+        sh:uniqueLang true ;
+        sh:severity sh:Violation ;
+        sh:message "Meeting must have at least one location with unique language tags"@en ,
+                   "Møte må ha minst ett sted med unike språkkoder"@no ;
+    ] ;
+    sh:property [
+        sh:path ext:startDate ;
+        sh:datatype xsd:date ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "Meeting must have exactly one start date"@en ,
+                   "Møte må ha nøyaktig én startdato"@no ;
+    ] ;
+    sh:property [
+        sh:path ext:attends ;
+        sh:class ext:Person ;
+        sh:minCount 2 ;
+        sh:severity sh:Warning ;
+        sh:message "Meeting should have at least two attendees"@en ,
+                   "Møte bør ha minst to deltakere"@no ;
+    ] .
+
+# Publication Shape - Validation for publications
+ext:PublicationShape a sh:NodeShape ;
+    sh:targetClass ext:Publication ;
+    rdfs:label "Publication Shape"@en , "Publiseringsform"@no ;
+    rdfs:comment "Validation shape for Publication class instances"@en ,
+                 "Valideringsform for Publication-klasseinstanser"@no ;
+    sh:property [
+        sh:path :hasTimestamp ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "Publication must have exactly one publication timestamp"@en ,
+                   "Publisering må ha nøyaktig ett publiseringstidsstempel"@no ;
+    ] ;
+    sh:property [
+        sh:path ext:publishes ;
+        sh:class ext:Document ;
+        sh:minCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "Publication must publish at least one document"@en ,
+                   "Publisering må publisere minst ett dokument"@no ;
+    ] .
+
+# ============================================
+# Property-Specific Shapes
+# ============================================
+
+# Relationship Validation Shape
+:RelationshipShape a sh:NodeShape ;
+    sh:targetSubjectsOf :relatedTo ;
+    rdfs:label "Relationship Shape"@en , "Relasjonsform"@no ;
+    rdfs:comment "Validation for relatedTo property usage"@en ,
+                 "Validering for bruk av relatedTo-egenskap"@no ;
+    sh:property [
+        sh:path :relatedTo ;
+        sh:class :Entity ;
+        sh:severity sh:Violation ;
+        sh:message "relatedTo property must reference an Entity"@en ,
+                   "relatedTo-egenskap må referere til en Entity"@no ;
+    ] .
+
+# Property Usage Shape
+:PropertyUsageShape a sh:NodeShape ;
+    sh:targetSubjectsOf :hasProperty ;
+    rdfs:label "Property Usage Shape"@en , "Egenskapsbruksform"@no ;
+    rdfs:comment "Validation for hasProperty usage"@en ,
+                 "Validering for bruk av hasProperty"@no ;
+    sh:property [
+        sh:path :hasProperty ;
+        sh:class :Entity ;
+        sh:minCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "hasProperty must reference at least one Entity"@en ,
+                   "hasProperty må referere til minst én Entity"@no ;
+    ] .
+
+# Date Range Validation Shape
+ext:DateRangeShape a sh:NodeShape ;
+    sh:targetClass ext:Project ;
+    rdfs:label "Date Range Shape"@en , "Datoområdeform"@no ;
+    rdfs:comment "Validation that end date is after start date"@en ,
+                 "Validering at sluttdato er etter startdato"@no ;
+    sh:sparql [
+        sh:message "Project end date must be after or equal to start date"@en ,
+                   "Prosjektets sluttdato må være etter eller lik startdato"@no ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX ext: <http://example.org/ontology/extensions#>
+            SELECT $this
+            WHERE {
+                $this ext:startDate ?start ;
+                      ext:endDate ?end .
+                FILTER (?end < ?start)
+            }
+        """ ;
+    ] .
+
+# Task Dependency Cycle Detection Shape
+ext:TaskCycleShape a sh:NodeShape ;
+    sh:targetClass ext:Task ;
+    rdfs:label "Task Cycle Shape"@en , "Oppgavesyklusform"@no ;
+    rdfs:comment "Validation to prevent circular task dependencies"@en ,
+                 "Validering for å forhindre sirkulære oppgaveavhengigheter"@no ;
+    sh:sparql [
+        sh:message "Task must not have circular dependencies"@en ,
+                   "Oppgave må ikke ha sirkulære avhengigheter"@no ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX ext: <http://example.org/ontology/extensions#>
+            SELECT $this
+            WHERE {
+                $this ext:dependsOn+ $this .
+            }
+        """ ;
+    ] .
+
+# Email Uniqueness Shape (for demonstration of advanced constraints)
+ext:EmailUniquenessShape a sh:NodeShape ;
+    sh:targetClass ext:Person ;
+    rdfs:label "Email Uniqueness Shape"@en , "E-postuniktform"@no ;
+    rdfs:comment "Validation that email addresses are unique across persons"@en ,
+                 "Validering at e-postadresser er unike på tvers av personer"@no ;
+    sh:sparql [
+        sh:message "Email address must be unique across all persons"@en ,
+                   "E-postadresse må være unik på tvers av alle personer"@no ;
+        sh:severity sh:Warning ;
+        sh:select """
+            PREFIX ext: <http://example.org/ontology/extensions#>
+            SELECT $this
+            WHERE {
+                $this ext:email ?email .
+                ?other ext:email ?email .
+                FILTER ($this != ?other)
+            }
+        """ ;
+    ] .

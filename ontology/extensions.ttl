@@ -1,0 +1,175 @@
+@prefix : <http://example.org/ontology#> .
+@prefix ext: <http://example.org/ontology/extensions#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Extension Ontology Declaration
+ext: a owl:Ontology ;
+    rdfs:label "Domain Extensions Ontology"@en ;
+    rdfs:comment "Domain-specific extensions to the core ontology"@en ;
+    owl:imports : ;
+    owl:versionInfo "1.0.0" .
+
+# Domain-Specific Classes
+ext:Person a owl:Class ;
+    rdfs:subClassOf :Agent ;
+    rdfs:label "Person"@en ;
+    rdfs:comment "A human being"@en .
+
+ext:Organization a owl:Class ;
+    rdfs:subClassOf :Agent ;
+    rdfs:label "Organization"@en ;
+    rdfs:comment "An organized group of people with a particular purpose"@en .
+
+ext:Document a owl:Class ;
+    rdfs:subClassOf :Resource ;
+    rdfs:label "Document"@en ;
+    rdfs:comment "A written or digital document"@en .
+
+ext:Dataset a owl:Class ;
+    rdfs:subClassOf :Resource ;
+    rdfs:label "Dataset"@en ;
+    rdfs:comment "A collection of structured data"@en .
+
+ext:Project a owl:Class ;
+    rdfs:subClassOf :Entity ;
+    rdfs:label "Project"@en ;
+    rdfs:comment "A planned undertaking with specific goals"@en .
+
+ext:Task a owl:Class ;
+    rdfs:subClassOf :Entity ;
+    rdfs:label "Task"@en ;
+    rdfs:comment "A piece of work to be done or undertaken"@en .
+
+ext:Meeting a owl:Class ;
+    rdfs:subClassOf :Event ;
+    rdfs:label "Meeting"@en ;
+    rdfs:comment "A gathering of people for a specific purpose"@en .
+
+ext:Publication a owl:Class ;
+    rdfs:subClassOf :Event ;
+    rdfs:label "Publication"@en ;
+    rdfs:comment "The act of making content publicly available"@en .
+
+# Domain-Specific Object Properties
+ext:worksFor a owl:ObjectProperty ;
+    rdfs:subPropertyOf :relatedTo ;
+    rdfs:label "works for"@en ;
+    rdfs:comment "Indicates that a person works for an organization"@en ;
+    rdfs:domain ext:Person ;
+    rdfs:range ext:Organization .
+
+ext:manages a owl:ObjectProperty ;
+    rdfs:subPropertyOf :relatedTo ;
+    rdfs:label "manages"@en ;
+    rdfs:comment "Indicates that an agent manages a project or resource"@en ;
+    rdfs:domain :Agent ;
+    rdfs:range :Entity .
+
+ext:assignedTo a owl:ObjectProperty ;
+    rdfs:label "assigned to"@en ;
+    rdfs:comment "Indicates that a task is assigned to an agent"@en ;
+    rdfs:domain ext:Task ;
+    rdfs:range :Agent .
+
+ext:partOf a owl:ObjectProperty ;
+    rdfs:label "part of"@en ;
+    rdfs:comment "Indicates that an entity is part of another entity"@en ;
+    rdfs:domain :Entity ;
+    rdfs:range :Entity ;
+    a owl:TransitiveProperty .
+
+ext:dependsOn a owl:ObjectProperty ;
+    rdfs:label "depends on"@en ;
+    rdfs:comment "Indicates that a task depends on another task"@en ;
+    rdfs:domain ext:Task ;
+    rdfs:range ext:Task .
+
+ext:creates a owl:ObjectProperty ;
+    rdfs:label "creates"@en ;
+    rdfs:comment "Indicates that an agent creates a resource"@en ;
+    rdfs:domain :Agent ;
+    rdfs:range :Resource .
+
+ext:publishes a owl:ObjectProperty ;
+    rdfs:label "publishes"@en ;
+    rdfs:comment "Indicates that an agent publishes a document"@en ;
+    rdfs:domain :Agent ;
+    rdfs:range ext:Document .
+
+ext:attends a owl:ObjectProperty ;
+    rdfs:subPropertyOf :participatesIn ;
+    rdfs:label "attends"@en ;
+    rdfs:comment "Indicates that a person attends a meeting"@en ;
+    rdfs:domain ext:Person ;
+    rdfs:range ext:Meeting .
+
+# Domain-Specific Datatype Properties
+ext:email a owl:DatatypeProperty ;
+    rdfs:label "email"@en ;
+    rdfs:comment "Email address of a person"@en ;
+    rdfs:domain ext:Person ;
+    rdfs:range xsd:string ;
+    a owl:FunctionalProperty .
+
+ext:phoneNumber a owl:DatatypeProperty ;
+    rdfs:label "phone number"@en ;
+    rdfs:comment "Phone number of a person or organization"@en ;
+    rdfs:domain :Agent ;
+    rdfs:range xsd:string .
+
+ext:website a owl:DatatypeProperty ;
+    rdfs:label "website"@en ;
+    rdfs:comment "Website URL of an organization"@en ;
+    rdfs:domain ext:Organization ;
+    rdfs:range xsd:anyURI .
+
+ext:startDate a owl:DatatypeProperty ;
+    rdfs:label "start date"@en ;
+    rdfs:comment "The start date of a project or event"@en ;
+    rdfs:domain :Entity ;
+    rdfs:range xsd:date .
+
+ext:endDate a owl:DatatypeProperty ;
+    rdfs:label "end date"@en ;
+    rdfs:comment "The end date of a project or event"@en ;
+    rdfs:domain :Entity ;
+    rdfs:range xsd:date .
+
+ext:dueDate a owl:DatatypeProperty ;
+    rdfs:label "due date"@en ;
+    rdfs:comment "The due date for a task"@en ;
+    rdfs:domain ext:Task ;
+    rdfs:range xsd:date .
+
+ext:priority a owl:DatatypeProperty ;
+    rdfs:label "priority"@en ;
+    rdfs:comment "Priority level of a task (1-5)"@en ;
+    rdfs:domain ext:Task ;
+    rdfs:range xsd:integer .
+
+ext:status a owl:DatatypeProperty ;
+    rdfs:label "status"@en ;
+    rdfs:comment "Current status of an entity"@en ;
+    rdfs:domain :Entity ;
+    rdfs:range xsd:string .
+
+ext:version a owl:DatatypeProperty ;
+    rdfs:label "version"@en ;
+    rdfs:comment "Version number of a document or dataset"@en ;
+    rdfs:domain :Resource ;
+    rdfs:range xsd:string .
+
+ext:fileSize a owl:DatatypeProperty ;
+    rdfs:label "file size"@en ;
+    rdfs:comment "Size of a document in bytes"@en ;
+    rdfs:domain ext:Document ;
+    rdfs:range xsd:long .
+
+ext:location a owl:DatatypeProperty ;
+    rdfs:label "location"@en ;
+    rdfs:comment "Physical or virtual location of an event"@en ;
+    rdfs:domain :Event ;
+    rdfs:range xsd:string .

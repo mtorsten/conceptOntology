@@ -1,0 +1,104 @@
+{
+  "description": "Graph Explorer Configuration for W3C Ontology System",
+  "version": "1.0.0",
+  "endpoints": {
+    "python_api": {
+      "url": "http://ontology-api:8000/query",
+      "description": "Python API with maplib integration",
+      "use_credentials": false,
+      "lucene_search": false,
+      "features": [
+        "SPARQL 1.1 queries",
+        "SHACL validation integration",
+        "Custom query processing",
+        "maplib-based operations"
+      ]
+    },
+    "fuseki": {
+      "url": "http://fuseki:3030/ontology/sparql",
+      "description": "Apache Jena Fuseki SPARQL endpoint",
+      "use_credentials": false,
+      "lucene_search": false,
+      "features": [
+        "SPARQL 1.1 queries",
+        "TDB2 persistent storage",
+        "High performance",
+        "Full SPARQL protocol support"
+      ]
+    }
+  },
+  "docker_environment_variables": {
+    "ENDPOINT_URL": {
+      "description": "SPARQL endpoint URL for graph explorer",
+      "default": "http://ontology-api:8000/query",
+      "alternatives": [
+        "http://fuseki:3030/ontology/sparql"
+      ]
+    },
+    "USE_CREDS": {
+      "description": "Use credentials for API access",
+      "default": "no",
+      "options": ["yes", "no"]
+    },
+    "LUCENE_SEARCH": {
+      "description": "Enable Lucene-based full-text search",
+      "default": "no",
+      "options": ["yes", "no"],
+      "note": "Set to 'no' for regex-based search"
+    }
+  },
+  "visualization_settings": {
+    "node_types": {
+      "owl_class": {
+        "color": "#4A90E2",
+        "shape": "circle",
+        "size": "medium"
+      },
+      "owl_property": {
+        "color": "#7ED321",
+        "shape": "diamond",
+        "size": "small"
+      },
+      "rdf_instance": {
+        "color": "#F5A623",
+        "shape": "square",
+        "size": "small"
+      }
+    },
+    "layout": {
+      "algorithm": "force-directed",
+      "spacing": "auto",
+      "clustering": true
+    },
+    "display": {
+      "show_labels": true,
+      "show_properties": true,
+      "max_nodes": 100,
+      "max_depth": 3
+    }
+  },
+  "sparql_queries": {
+    "discover_classes": "PREFIX owl: <http://www.w3.org/2002/07/owl#>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n\nSELECT ?class ?label WHERE {\n  ?class a owl:Class .\n  OPTIONAL { ?class rdfs:label ?label }\n}",
+    "discover_properties": "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX owl: <http://www.w3.org/2002/07/owl#>\n\nSELECT ?property ?domain ?range WHERE {\n  ?property a ?type .\n  FILTER(?type IN (rdf:Property, owl:ObjectProperty, owl:DatatypeProperty))\n  OPTIONAL { ?property rdfs:domain ?domain }\n  OPTIONAL { ?property rdfs:range ?range }\n}",
+    "class_hierarchy": "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n\nSELECT ?subClass ?superClass WHERE {\n  ?subClass rdfs:subClassOf ?superClass .\n}",
+    "instances_of_class": "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n\nSELECT ?instance ?class WHERE {\n  ?instance a ?class .\n}"
+  },
+  "api_compatibility": {
+    "request_methods": ["GET", "POST"],
+    "content_types": [
+      "application/json",
+      "application/x-www-form-urlencoded",
+      "application/sparql-query"
+    ],
+    "response_format": "application/sparql-results+json",
+    "cors_enabled": true
+  },
+  "notes": [
+    "The graph explorer connects to the Python API by default",
+    "The Python API returns results in standard SPARQL JSON format",
+    "CORS is enabled on the Python API for browser access",
+    "The graph explorer automatically discovers OWL classes and properties",
+    "Visualization settings are applied client-side in the browser",
+    "To switch to Fuseki, change ENDPOINT_URL in docker-compose.yml"
+  ]
+}
