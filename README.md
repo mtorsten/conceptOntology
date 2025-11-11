@@ -1,4 +1,13 @@
-*This is work in progress and at prototype level. Caveat Emptor.*
+**This is work in progress and at prototype level. Caveat Emptor.**
+This project for now can do local setups (now it use localhost as the hostname, should be a giveaway for that fact).
+The end goal is to have a complete setup where you can build models using W3C standards, test and verify them and view them using a graphical viewer, and have the whole system deployed into a kubernetes environment for collaboration.
+
+Other github projects used: 
+
+Library for Python: https://github.com/DataTreehouse/maplib
+App for browsing the model: https://github.com/DataTreehouse/graph-explorer
+Backend software: https://jena.apache.org/
+
 
 # W3C Semantic Web Ontology System
 
